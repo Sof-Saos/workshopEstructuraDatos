@@ -3,60 +3,37 @@ import java.util.Stack;
 
 public class HtmlValidator {
 	public static Stack<HtmlTag> isValidHtml(Queue<HtmlTag> tags) {
-		// Crear una pila para rastrear las etiquetas de apertura
+		// Creamos una pila para rastrear las etiquetas abiertas.
 		Stack<HtmlTag> pila = new Stack<>();
 
-		// Crear una pila para almacenar etiquetas incorrectas
-		Stack<HtmlTag> etiquetasIncorrectas = new Stack<>();
-
-		while (!tags.isEmpty()) {
-			HtmlTag actualTag = tags.poll();
-
-			// Si el HTML tiene un solo elemento, retornar null
-			if (tags.isEmpty() && pila.isEmpty()) {
-				return null;
-			}
-
-			// Si la etiqueta actual es de autocierre, continúa con la siguiente
-			if (actualTag.isSelfClosing()) {
+		for (HtmlTag tag : tags) {
+			// Si la etiqueta es de auto-cierre, la ignoramos y continuamos con la siguiente etiqueta.
+			if (tag.isSelfClosing()) {
 				continue;
 			}
-
-			// Si la etiqueta actual es una etiqueta de apertura y no es de autocierre
-			if (actualTag.isOpenTag() && !actualTag.isSelfClosing()) {
-				// Push la etiqueta actual en la pila temporal
-				pila.push(actualTag);
-			} else if (pila.isEmpty()) {
-				// Si encontramos una única etiqueta de cierre que no es self-closing, retornar null (error)
-				return null;
-			} else {
-				// Si la etiqueta actual es una etiqueta de cierre
-				// Obtener la etiqueta de apertura correspondiente de la pila temporal
-				HtmlTag etiquetaAbierta = pila.pop();
-
-				// Si la etiqueta de cierre no coincide con la etiqueta de apertura, almacenarlas como etiquetas incorrectas
-				if (!actualTag.matches(etiquetaAbierta)) {
-					etiquetasIncorrectas.push(etiquetaAbierta);
-					etiquetasIncorrectas.push(actualTag);
+			// Si es una etiqueta de apertura (por ejemplo, <div>), la agregamos a la pila.
+			else if (tag.isOpenTag()) {
+				pila.push(tag);
+			}
+			// Si es una etiqueta de cierre (por ejemplo, </div>), la comparamos con la etiqueta en la cima de la pila.
+			else if (!tag.isOpenTag()) {
+				// Verificamos si la pila no está vacía para evitar errores.
+				if (!pila.isEmpty()) {
+					// Comparamos la etiqueta de cierre con la etiqueta en la cima de la pila.
+					if (pila.peek().matches(tag)) {
+						// Si coinciden, eliminamos la etiqueta de la cima de la pila.
+						pila.pop();
+					} else {
+						// Si no coinciden, significa que las etiquetas no están equilibradas, por lo que retornamos la pila en su estado actual.
+						return pila;
+					}
+				} else {
+					// Si la pila está vacía y encontramos una etiqueta de cierre, significa que no hay etiqueta de apertura correspondiente, por lo que retornamos null para indicar un error.
+					return null;
 				}
 			}
 		}
-
-		// Si la pila de etiquetas de apertura no está vacía, significa que hay etiquetas sin cerrar
-		if (!pila.isEmpty()) {
-			return pila;
-		}
-
-		// Si hay etiquetas incorrectas, devolverlas como resultado
-		if (!etiquetasIncorrectas.isEmpty()) {
-			return etiquetasIncorrectas;
-		}
-
-		// Si no se encontraron errores, devolver una pila vacía para indicar que el HTML es válido
-		return new Stack<>();
+		// Al final del bucle, si la pila está vacía, todas las etiquetas se han cerrado correctamente y retornamos una pila vacía para indicar que el HTML es válido.
+		return pila;
 	}
-
 }
-
-
-
