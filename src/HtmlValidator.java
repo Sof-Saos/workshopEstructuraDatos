@@ -6,21 +6,20 @@ public class HtmlValidator {
 		// Creamos una pila para rastrear las etiquetas abiertas.
 		Stack<HtmlTag> pila = new Stack<>();
 
-		for (HtmlTag tag : tags) {
+		for (HtmlTag etiquetaHtml : tags) {
 			// Si la etiqueta es de auto-cierre, la ignoramos y continuamos con la siguiente etiqueta.
-			if (tag.isSelfClosing()) {
+			if (etiquetaHtml.isSelfClosing()) {
 				continue;
 			}
-			// Si es una etiqueta de apertura (por ejemplo, <div>), la agregamos a la pila.
-			else if (tag.isOpenTag()) {
-				pila.push(tag);
+			// Si es una etiqueta de apertura, la agregamos a la pila.
+			else if (etiquetaHtml.isOpenTag()) {
+				pila.push(etiquetaHtml);
 			}
-			// Si es una etiqueta de cierre (por ejemplo, </div>), la comparamos con la etiqueta en la cima de la pila.
-			else if (!tag.isOpenTag()) {
-				// Verificamos si la pila no está vacía para evitar errores.
+			// Si es una etiqueta de cierre, la comparamos con la etiqueta en la cima de la pila.
+			else if (!etiquetaHtml.isOpenTag()) {
 				if (!pila.isEmpty()) {
 					// Comparamos la etiqueta de cierre con la etiqueta en la cima de la pila.
-					if (pila.peek().matches(tag)) {
+					if (pila.peek().matches(etiquetaHtml)) {
 						// Si coinciden, eliminamos la etiqueta de la cima de la pila.
 						pila.pop();
 					} else {
